@@ -1,31 +1,31 @@
--- GitHubObfuscator.lua
-local O = {}
+-- RayfieldObfuscator.lua
+local RayfieldObf = {}
 
-function O.Run(code)
-    -- Encode code menjadi byte array
-    local bytes = {}
+function RayfieldObf.LoadAndExecute(code)
+    -- Simple encoding yang compatible dengan Rayfield
+    local encoded = ""
     for i = 1, #code do
-        bytes[i] = string.byte(code, i)
+        local byte = string.byte(code, i)
+        encoded = encoded .. string.char(byte ~ 88) -- XOR dengan 88
     end
     
-    -- Build execution string langsung
-    local execString = ""
-    for i, byte in ipairs(bytes) do
-        execString = execString .. string.char(byte)
+    -- Decode dan execute
+    local decoded = ""
+    for i = 1, #encoded do
+        decoded = decoded .. string.char(string.byte(encoded, i) ~ 88)
     end
     
-    -- Execute langsung menggunakan getfenv
-    local func = getfenv().loadstring(execString)
-    if not func then
-        func = getfenv().load(execString)
-    end
+    -- Gunakan method yang sama seperti Rayfield
+    local success, result = pcall(function()
+        return loadstring(decoded)()
+    end)
     
-    if func then
-        return func()
+    if success then
+        return result
     else
-        -- Fallback: execute langsung
-        getfenv().loadstring(execString)()
+        warn("Obfuscated execution failed:", result)
+        return nil
     end
 end
 
-return O
+return RayfieldObf
