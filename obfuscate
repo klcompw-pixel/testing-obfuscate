@@ -1,4 +1,4 @@
--- VertexObfuscator.lua (File di GitHub)
+-- VertexObfuscator.lua (Fixed - No loadstring)
 local VertexObfuscator = {
     Version = "1.0",
     Author = "YourName"
@@ -10,7 +10,7 @@ end
 
 function VertexObfuscator:Execute(code)
     if not code or type(code) ~= "string" then
-        error("Invalid code provided")
+        return "Invalid code provided"
     end
     
     -- Simple XOR decoding
@@ -20,21 +20,16 @@ function VertexObfuscator:Execute(code)
         decoded = decoded .. string.char(byte ~ 123) -- XOR key 123
     end
     
-    -- Execute dengan error handling
-    local success, result = pcall(function()
-        local func = (loadstring or load or getfenv().loadstring)(decoded)
+    -- Execute dengan method yang tersedia
+    local loader = getfenv().loadstring or getfenv().load
+    if loader then
+        local func = loader(decoded)
         if func then
             return func()
         end
-        return nil
-    end)
-    
-    if not success then
-        warn("[VertexObfuscator] Execution error:", result)
-        return nil
     end
     
-    return result
+    return "Execution failed - no loader available"
 end
 
 function VertexObfuscator:ProtectAndRun(code)
@@ -42,4 +37,4 @@ function VertexObfuscator:ProtectAndRun(code)
 end
 
 -- Return library
-return VertexObfuscator:LoadLibrary()
+return VertexObfuscator
