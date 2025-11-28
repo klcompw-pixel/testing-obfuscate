@@ -1,14 +1,11 @@
--- SimpleVertex.lua
+-- SimpleVertex.lua (Pastikan file ini ada di GitHub dengan konten lengkap)
 local Vertex = {}
 
 function Vertex.Execute(code)
-    -- Decode XOR
     local decoded = ""
     for i = 1, #code do
-        decoded = decoded .. string.char(string.byte(code, i) ~ 55)
+        decoded = decoded .. string.char(string.byte(code, i) ~ 77)
     end
-    
-    -- Execute
     getfenv().loadstring(decoded)()
 end
 
