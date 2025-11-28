@@ -1,10 +1,31 @@
--- SimpleObf.lua
-return {
-    Run = function(c)
-        local e = ""
-        for i=1,#c do e=e..string.char(string.byte(c,i)~55) end
-        local d = ""
-        for i=1,#e do d=d..string.char(string.byte(e,i)~55) end
-        loadstring(d)()
+-- GitHubObfuscator.lua
+local O = {}
+
+function O.Run(code)
+    -- Encode code menjadi byte array
+    local bytes = {}
+    for i = 1, #code do
+        bytes[i] = string.byte(code, i)
     end
-}
+    
+    -- Build execution string langsung
+    local execString = ""
+    for i, byte in ipairs(bytes) do
+        execString = execString .. string.char(byte)
+    end
+    
+    -- Execute langsung menggunakan getfenv
+    local func = getfenv().loadstring(execString)
+    if not func then
+        func = getfenv().load(execString)
+    end
+    
+    if func then
+        return func()
+    else
+        -- Fallback: execute langsung
+        getfenv().loadstring(execString)()
+    end
+end
+
+return O
