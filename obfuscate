@@ -1,25 +1,13 @@
--- DirectObfuscator.Client.lua
-local O = {}
+-- NoDepObfuscator.Client.lua
+_G.OBFUSCATOR = {}
 
-function O.Execute(code)
-    -- Encode
-    local encoded = ""
-    for i = 1, #code do
-        encoded = encoded .. string.char(string.byte(code, i) ~ 99)
-    end
-    
-    -- Decode dan execute
+function _G.OBFUSCATOR.Run(code)
     local decoded = ""
-    for i = 1, #encoded do
-        decoded = decoded .. string.char(string.byte(encoded, i) ~ 99)
+    for i = 1, #code do
+        decoded = decoded .. string.char(string.byte(code, i) ~ 123)
     end
-    
-    -- Gunakan load atau loadstring yang tersedia
-    local loader = loadstring or load
-    local func = loader(decoded)
-    if func then
-        func()
-    end
+    local func = (loadstring or load)(decoded)
+    if func then func() end
 end
 
-return O
+return _G.OBFUSCATOR
