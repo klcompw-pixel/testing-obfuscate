@@ -1,5 +1,4 @@
--- Obfuscator.Client.lua (Fixed for GitHub)
-local Players = game:GetService("Players")
+-- Obfuscator.Client.lua (Fixed for Roblox GitHub)
 local RunService = game:GetService("RunService")
 
 local ClientObfuscator = {}
@@ -15,7 +14,7 @@ function ClientObfuscator.ProtectAndRun(codeString)
         table.insert(encodedParts, tostring(encodedByte))
     end
     
-    -- FIX: Gunakan quotes biasa, bukan [[ ]]
+    -- FIX: Gunakan load, bukan loadstring (Roblox compatible)
     local loaderCode = 
     "local parts = {" .. table.concat(encodedParts, ",") .. "} " ..
     "local result = '' " ..
@@ -24,23 +23,28 @@ function ClientObfuscator.ProtectAndRun(codeString)
     "   result = result .. string.char(parts[i] ~ key) " ..
     "end " ..
     "result = result:gsub('COMMENT_OPEN', '--[['):gsub('COMMENT_CLOSE', ']]') " ..
-    "local func, err = loadstring(result) " ..
+    "local func, err = load(result) " ..
     "if func then return func() else return 'Load Error: ' .. tostring(err) end"
 
     if not RunService:IsClient() then
         return "Client only"
     end
     
-    local func, err = loadstring(loaderCode)
+    -- FIX: Gunakan load dengan environment yang benar
+    local func, err = load(loaderCode)
     if func then
+        -- Set environment dengan fungsi yang tersedia di Roblox
         setfenv(func, {
-            loadstring = loadstring,
+            load = load,
             string = string,
             table = table,
             tostring = tostring,
             pcall = pcall,
             print = print,
-            warn = warn
+            warn = warn,
+            game = game,
+            script = script,
+            workspace = workspace
         })
         return func()
     else
