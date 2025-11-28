@@ -1,0 +1,55 @@
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local ClientObfuscator = {}
+
+function ClientObfuscator.ProtectAndRun(codeString)
+    local cleanCode = codeString:gsub("%-%-%[%[", "COMMENT_OPEN"):gsub("%]%]", "COMMENT_CLOSE")
+    
+    local encodedParts = {}
+    for i = 1, #cleanCode do
+        local char = cleanCode:sub(i, i)
+        local byte = string.byte(char)
+        local encodedByte = byte ~ ((i * 11 + 5) % 256)
+        table.insert(encodedParts, tostring(encodedByte))
+    end
+    
+    local loaderCode = [[
+        local parts = {]] .. table.concat(encodedParts, ",") .. [[}
+        local result = ""
+        for i = 1, #parts do
+            local key = (i * 11 + 5) % 256
+            result = result .. string.char(parts[i] ~ key)
+        end
+        result = result:gsub("COMMENT_OPEN", "--[["):gsub("COMMENT_CLOSE", "]]")
+        local func, err = loadstring(result)
+        if func then
+            return func()
+        else
+            return "Load Error: " .. tostring(err)
+        end
+    ]]
+
+    if not RunService:IsClient() then
+        return "Client only"
+    end
+    
+    local func, err = loadstring(loaderCode)
+    if func then
+        setfenv(func, {
+            loadstring = loadstring,
+            string = string,
+            table = table,
+            tostring = tostring,
+            pcall = pcall,
+            print = print,
+            warn = warn
+        })
+        return func()
+    else
+        return "Compile Error: " .. tostring(err)
+    end
+end
+
+return ClientObfuscator
