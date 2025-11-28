@@ -1,10 +1,22 @@
--- SimpleRayObf.lua
+-- obfuscate (File di GitHub)
 return {
     Execute = function(code)
+        -- Simple decode and execute
         local decoded = ""
         for i = 1, #code do
-            decoded = decoded .. string.char(string.byte(code, i) ~ 66)
+            local char = code:sub(i, i)
+            local byte = string.byte(char)
+            decoded = decoded .. string.char(byte ~ 77)
         end
-        loadstring(decoded)()
+        
+        -- Gunakan getfenv untuk access loadstring
+        local loader = getfenv().loadstring or getfenv().load
+        if loader then
+            local func = loader(decoded)
+            if func then
+                return func()
+            end
+        end
+        return nil
     end
 }
