@@ -1,4 +1,4 @@
-
+-- Obfuscator.Client.lua (Fixed for GitHub)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -15,21 +15,17 @@ function ClientObfuscator.ProtectAndRun(codeString)
         table.insert(encodedParts, tostring(encodedByte))
     end
     
-    local loaderCode = [[
-        local parts = {]] .. table.concat(encodedParts, ",") .. [[}
-        local result = ""
-        for i = 1, #parts do
-            local key = (i * 11 + 5) % 256
-            result = result .. string.char(parts[i] ~ key)
-        end
-        result = result:gsub("COMMENT_OPEN", "--[["):gsub("COMMENT_CLOSE", "]]")
-        local func, err = loadstring(result)
-        if func then
-            return func()
-        else
-            return "Load Error: " .. tostring(err)
-        end
-    ]]
+    -- FIX: Gunakan quotes biasa, bukan [[ ]]
+    local loaderCode = 
+    "local parts = {" .. table.concat(encodedParts, ",") .. "} " ..
+    "local result = '' " ..
+    "for i = 1, #parts do " ..
+    "   local key = (i * 11 + 5) % 256 " ..
+    "   result = result .. string.char(parts[i] ~ key) " ..
+    "end " ..
+    "result = result:gsub('COMMENT_OPEN', '--[['):gsub('COMMENT_CLOSE', ']]') " ..
+    "local func, err = loadstring(result) " ..
+    "if func then return func() else return 'Load Error: ' .. tostring(err) end"
 
     if not RunService:IsClient() then
         return "Client only"
