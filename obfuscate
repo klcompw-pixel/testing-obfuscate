@@ -1,42 +1,23 @@
--- Obfuscator.Client.lua (Fixed for Executor)
-local RunService = game:GetService("RunService")
+-- SimpleObfuscator.Client.lua
+local M = {}
 
-local ClientObfuscator = {}
-
-function ClientObfuscator.ProtectAndRun(codeString)
-    local cleanCode = codeString:gsub("%-%-%[%[", "COMMENT_OPEN"):gsub("%]%]", "COMMENT_CLOSE")
-    
-    local encodedParts = {}
-    for i = 1, #cleanCode do
-        local char = cleanCode:sub(i, i)
-        local byte = string.byte(char)
-        local encodedByte = byte ~ ((i * 11 + 5) % 256)
-        table.insert(encodedParts, tostring(encodedByte))
+function M.Run(code)
+    -- Encode dengan XOR sederhana
+    local bytes = {}
+    for i = 1, #code do
+        local byte = string.byte(code, i)
+        table.insert(bytes, tostring(byte ~ 55))
     end
     
-    -- Build loader code
-    local loaderCode = 
-    "local parts = {" .. table.concat(encodedParts, ",") .. "}\n" ..
-    "local result = ''\n" ..
-    "for i = 1, #parts do\n" ..
-    "   local key = (i * 11 + 5) % 256\n" ..
-    "   result = result .. string.char(parts[i] ~ key)\n" ..
-    "end\n" ..
-    "result = result:gsub('COMMENT_OPEN', '--[['):gsub('COMMENT_CLOSE', ']]')\n" ..
-    "local func = loadstring(result)\n" ..
-    "if func then return func() else return 'Load Error' end"
-
-    if not RunService:IsClient() then
-        return "Client only"
-    end
+    -- Build loader yang aman
+    local loader = "local b={" .. table.concat(bytes, ",") .. "} " ..
+                   "local s='' " ..
+                   "for i=1,#b do " ..
+                   "s=s..string.char(b[i]~55) " ..
+                   "end " ..
+                   "loadstring(s)()"
     
-    -- Use loadstring directly
-    local func = loadstring(loaderCode)
-    if func then
-        return func()
-    else
-        return "Compile Error"
-    end
+    loadstring(loader)()
 end
 
-return ClientObfuscator
+return M
