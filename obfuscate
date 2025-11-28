@@ -1,25 +1,29 @@
--- DirectObfuscator.Client.lua
+-- GitHubObfuscator.lua (Simpan di GitHub)
 local O = {}
 
 function O.Execute(code)
-    -- Encode
+    -- Simple XOR encoding
     local encoded = ""
     for i = 1, #code do
-        encoded = encoded .. string.char(string.byte(code, i) ~ 99)
+        local byte = string.byte(code, i)
+        encoded = encoded .. string.char(byte ~ 77)
     end
     
-    -- Decode dan execute
+    -- Decode and execute
     local decoded = ""
     for i = 1, #encoded do
-        decoded = decoded .. string.char(string.byte(encoded, i) ~ 99)
+        decoded = decoded .. string.char(string.byte(encoded, i) ~ 77)
     end
     
-    -- Gunakan load atau loadstring yang tersedia
+    -- Universal loader
     local loader = loadstring or load
-    local func = loader(decoded)
-    if func then
-        func()
+    if loader then
+        local func = loader(decoded)
+        if func then
+            return func()
+        end
     end
+    return "Execution failed"
 end
 
 return O
