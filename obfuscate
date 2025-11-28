@@ -1,29 +1,10 @@
--- GitHubObfuscator.lua (Simpan di GitHub)
-local O = {}
-
-function O.Execute(code)
-    -- Simple XOR encoding
-    local encoded = ""
-    for i = 1, #code do
-        local byte = string.byte(code, i)
-        encoded = encoded .. string.char(byte ~ 77)
+-- SimpleObf.lua
+return {
+    Run = function(c)
+        local e = ""
+        for i=1,#c do e=e..string.char(string.byte(c,i)~55) end
+        local d = ""
+        for i=1,#e do d=d..string.char(string.byte(e,i)~55) end
+        loadstring(d)()
     end
-    
-    -- Decode and execute
-    local decoded = ""
-    for i = 1, #encoded do
-        decoded = decoded .. string.char(string.byte(encoded, i) ~ 77)
-    end
-    
-    -- Universal loader
-    local loader = loadstring or load
-    if loader then
-        local func = loader(decoded)
-        if func then
-            return func()
-        end
-    end
-    return "Execution failed"
-end
-
-return O
+}
