@@ -1,40 +1,15 @@
--- VertexObfuscator.lua (Fixed - No loadstring)
-local VertexObfuscator = {
-    Version = "1.0",
-    Author = "YourName"
-}
+-- SimpleVertex.lua
+local Vertex = {}
 
-function VertexObfuscator:LoadLibrary()
-    return self
-end
-
-function VertexObfuscator:Execute(code)
-    if not code or type(code) ~= "string" then
-        return "Invalid code provided"
-    end
-    
-    -- Simple XOR decoding
+function Vertex.Execute(code)
+    -- Decode XOR
     local decoded = ""
     for i = 1, #code do
-        local byte = string.byte(code, i)
-        decoded = decoded .. string.char(byte ~ 123) -- XOR key 123
+        decoded = decoded .. string.char(string.byte(code, i) ~ 55)
     end
     
-    -- Execute dengan method yang tersedia
-    local loader = getfenv().loadstring or getfenv().load
-    if loader then
-        local func = loader(decoded)
-        if func then
-            return func()
-        end
-    end
-    
-    return "Execution failed - no loader available"
+    -- Execute
+    getfenv().loadstring(decoded)()
 end
 
-function VertexObfuscator:ProtectAndRun(code)
-    return self:Execute(code)
-end
-
--- Return library
-return VertexObfuscator
+return Vertex
