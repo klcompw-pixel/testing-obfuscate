@@ -1,31 +1,10 @@
--- RayfieldObfuscator.lua
-local RayfieldObf = {}
-
-function RayfieldObf.LoadAndExecute(code)
-    -- Simple encoding yang compatible dengan Rayfield
-    local encoded = ""
-    for i = 1, #code do
-        local byte = string.byte(code, i)
-        encoded = encoded .. string.char(byte ~ 88) -- XOR dengan 88
+-- SimpleRayObf.lua
+return {
+    Execute = function(code)
+        local decoded = ""
+        for i = 1, #code do
+            decoded = decoded .. string.char(string.byte(code, i) ~ 66)
+        end
+        loadstring(decoded)()
     end
-    
-    -- Decode dan execute
-    local decoded = ""
-    for i = 1, #encoded do
-        decoded = decoded .. string.char(string.byte(encoded, i) ~ 88)
-    end
-    
-    -- Gunakan method yang sama seperti Rayfield
-    local success, result = pcall(function()
-        return loadstring(decoded)()
-    end)
-    
-    if success then
-        return result
-    else
-        warn("Obfuscated execution failed:", result)
-        return nil
-    end
-end
-
-return RayfieldObf
+}
