@@ -1,23 +1,25 @@
--- SimpleObfuscator.Client.lua
-local M = {}
+-- DirectObfuscator.Client.lua
+local O = {}
 
-function M.Run(code)
-    -- Encode dengan XOR sederhana
-    local bytes = {}
+function O.Execute(code)
+    -- Encode
+    local encoded = ""
     for i = 1, #code do
-        local byte = string.byte(code, i)
-        table.insert(bytes, tostring(byte ~ 55))
+        encoded = encoded .. string.char(string.byte(code, i) ~ 99)
     end
     
-    -- Build loader yang aman
-    local loader = "local b={" .. table.concat(bytes, ",") .. "} " ..
-                   "local s='' " ..
-                   "for i=1,#b do " ..
-                   "s=s..string.char(b[i]~55) " ..
-                   "end " ..
-                   "loadstring(s)()"
+    -- Decode dan execute
+    local decoded = ""
+    for i = 1, #encoded do
+        decoded = decoded .. string.char(string.byte(encoded, i) ~ 99)
+    end
     
-    loadstring(loader)()
+    -- Gunakan load atau loadstring yang tersedia
+    local loader = loadstring or load
+    local func = loader(decoded)
+    if func then
+        func()
+    end
 end
 
-return M
+return O
